@@ -16,27 +16,28 @@ function userInformationHTML(user){
     `;
 }
 
-function fetchGitHubInformation(even) {
+function fetchGitHubInformation(event) {
 
     var username = $("#gh-username").val();
-
-    if(!username) {
+    if (!username) {
         $("#gh-user-data").html(`<h2>Please enter a GitHub username</h2>`);
         return;
     }
 
     $("#gh-user-data").html(
         `<div id="loader">
-            <img src="assets/css/loader.gif" alt="loading.."/>
-        </div>`
-    );
+            <img src="assets/css/loader.gif" alt="loading..." />
+        </div>`);
 
     $.when(
-        $.getJSON(`https://api.github.com/users/${username}`)
+        $.getJSON(`https://api.github.com/users/${username}`),
+        $.getJSON(`https://api.github.com/users/${username}/repos`)
     ).then(
-        function(response) {
-            var userData = response;
+        function(firstResponse, secondResponse) {
+            var userData = firstResponse[0];
+            var repoData = secondResponse[0];
             $("#gh-user-data").html(userInformationHTML(userData));
+            $("#gh-repo-data").html(repoInformationHTML(repoData));
         },
         function(errorResponse) {
             if (errorResponse.status === 404) {
